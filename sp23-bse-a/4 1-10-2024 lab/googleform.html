@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Form</title>
+    <style>
+        .error{
+            border: 1px solid red;
+        }
+    </style>
+    <script>
+        function handleFormSubmit(event){
+            console.log("Handler Called");
+            
+            let query = document.getElementById("query");
+            if(query.value){
+                console.log("valid form")
+            }else {
+                console.log("Invalid Form");
+                query.classList.add("error");
+                let errorMessage = document.getElementById("error-message");
+                errorMessage.style.display = "inline";
+                event.preventDefault();
+            }
+        }
+        
+
+        window.onload = function(){
+            var gform = document.getElementById("gform");
+        gform.onsubmit = handleFormSubmit;
+        }
+        
+    </script>
+</head>
+<body>
+    <form id="gform" action="https://google.com/search">
+        <input id="query" type="text" name="q" value="cui"/>
+        <span id="error-message" style="display: none;">Query is Required </span>
+        <input type="submit">
+    </form>
+
+    
+</body>
+
+</html>
