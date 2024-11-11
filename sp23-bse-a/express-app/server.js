@@ -1,12 +1,14 @@
 const express = require("express");
 let app = express();
-
+var expressLayouts = require("express-ejs-layouts");
 app.use(express.static("public"));
 
 app.set("view engine", "ejs");
-
+app.use(expressLayouts);
 app.get("/contact-us", (req, res) => {
-  res.render("contact-us");
+  let address = "CUI Lahore Defence Road Off Raiwind Road";
+  let phone = "+92123456";
+  res.render("contact-us", { address, phone });
 });
 
 app.get("/", (req, res) => {
