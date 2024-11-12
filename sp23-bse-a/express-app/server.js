@@ -5,6 +5,8 @@ app.use(express.static("public"));
 
 app.set("view engine", "ejs");
 app.use(expressLayouts);
+let productsRouter = require("./routes/admin/products.router");
+app.use(productsRouter);
 app.get("/contact-us", (req, res) => {
   let address = "CUI Lahore Defence Road Off Raiwind Road";
   let phone = "+92123456";
