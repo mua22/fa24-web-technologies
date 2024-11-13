@@ -4,6 +4,10 @@ let server = express();
 server.set("view engine", "ejs");
 server.use(expressLayouts);
 server.use(express.static("public"));
+
+let adminProductsRouter = require("./routes/admin/products.controller");
+server.use(adminProductsRouter);
+
 server.get("/about-me", (req, res) => {
   return res.render("about-me");
 });
