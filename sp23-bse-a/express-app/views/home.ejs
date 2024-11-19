@@ -1,1 +1,18 @@
-<h1>Home Page</h1>
+<div class="row">
+
+
+
+<% products.forEach(product => { %>
+    <div class="col-4 m-3">
+    <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="/images/placeholder.svg" alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title"><%= product.title %></h5>
+          <p class="card-text"><%= product.description %></p>
+          <a href="#" class="btn btn-primary">PKR: <%= product.price %> Add To Cart</a>
+        </div>
+      </div>
+    </div>
+<% }) %>
+
+</div>

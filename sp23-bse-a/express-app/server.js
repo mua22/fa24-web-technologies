@@ -29,8 +29,10 @@ app.get("/contact-us", (req, res) => {
   res.render("contact-us", { address, phone });
 });
 
-app.get("/", (req, res) => {
-  res.render("home");
+app.get("/", async (req, res) => {
+  let ProductModel = require("./models/product.model");
+  let products = await ProductModel.find();
+  res.render("home", { products });
 });
 // let connectionString =
 // "mongodb+srv://musmanakram:musmanakram@cluster0.vidd3.mongodb.net/";
