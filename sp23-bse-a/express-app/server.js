@@ -9,6 +9,7 @@ const mongoose = require("mongoose");
 var expressLayouts = require("express-ejs-layouts");
 // publically accessible assets placed in public folder are exposed
 app.use(express.static("public"));
+app.use(express.static("uploads"));
 
 // add a middleware to parse body data for form submission
 app.use(express.urlencoded());

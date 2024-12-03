@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 let productSchema = new mongoose.Schema({
   title: String,
   description: String,
+  picture: String,
   price: Number,
   isFeatured: { type: Boolean, default: false },
 });

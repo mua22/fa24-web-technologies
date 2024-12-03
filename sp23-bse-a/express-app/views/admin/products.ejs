@@ -1,4 +1,12 @@
 <h3>Products</h3>
+<nav aria-label="Page navigation example">
+    <ul class="pagination">
+        <% for( let index = 1; index <= totalPages; index++ ) { %>
+            <li class="page-item"><a class="page-link" href="/admin/products/<%= index %>"><%= index %></a></li>
+        <% } %>
+      
+    </ul>
+  </nav>
 <a href="/admin/products/create" class="btn btn-info">Create New Product</a>
 <table class="table table-hover table-striped">
     <thead>
@@ -19,6 +27,7 @@
                 <td><%= products[index].description %></td>
                 <td><%= products[index].price %></td>
                 <td><%= products[index].isFeatured %></td>
+                <td><img src="/<%= products[index].picture %>" width="100px"/> </td>
                 <td>
                     <a href="/admin/products/edit/<%= products[index]._id %>" class="btn btn-warning">Edit</a>
                     <a href="/admin/products/delete/<%= products[index]._id %>" class="btn btn-danger">Del</a>

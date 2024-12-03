@@ -1,5 +1,16 @@
 const express = require("express");
 let router = express.Router();
+let multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads"); // Directory to store files
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`); // Unique file name
+  },
+});
+const upload = multer({ storage: storage });
 let Product = require("../../models/product.model");
 router.get("/admin/dashboard", (req, res) => {
   res.render("admin/dashboard", { layout: "admin/admin-layout" });
@@ -30,15 +41,33 @@ router.get("/admin/products/create", (req, res) => {
   // res.send("This is products creat page");
   res.render("admin/product-form", { layout: "admin/admin-layout" });
 });
-router.post("/admin/products/create", async (req, res) => {
-  let newProduct = new Product(req.body);
-  newProduct.isFeatured = Boolean(req.body.isFeatured);
-  await newProduct.save();
-  // return res.send(newProduct);
-  return res.redirect("/admin/products");
-});
-router.get("/admin/products", async (req, res) => {
-  let products = await Product.find();
-  res.render("admin/products", { layout: "admin/admin-layout", products });
+router.post(
+  "/admin/products/create",
+  upload.single("file"),
+  async (req, res) => {
+    // return res.send(req.file);
+    let newProduct = new Product(req.body);
+    if (req.file) newProduct.picture = req.file.filename;
+    newProduct.isFeatured = Boolean(req.body.isFeatured);
+    await newProduct.save();
+    // return res.send(newProduct);
+    return res.redirect("/admin/products");
+  }
+);
+router.get("/admin/products/:page?", async (req, res) => {
+  let page = req.params.page ? Number(req.params.page) : 1;
+  let pageSize = 2;
+  let products = await Product.find()
+    .limit(pageSize)
+    .skip((page - 1) * pageSize);
+  let totalRecords = await Product.countDocuments();
+  let totalPages = Math.ceil(totalRecords / pageSize);
+  res.render("admin/products", {
+    layout: "admin/admin-layout",
+    products,
+    page,
+    totalRecords,
+    totalPages,
+  });
 });
 module.exports = router;
