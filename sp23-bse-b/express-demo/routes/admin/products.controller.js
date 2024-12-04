@@ -1,5 +1,15 @@
 const express = require("express");
 let router = express.Router();
+let multer = require("multer");
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads"); // Directory to store files
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname}`); // Unique file name
+  },
+});
+const upload = multer({ storage: storage });
 let Product = require("../../models/product.model");
 
 // route to handle Delete of product
@@ -36,24 +46,45 @@ router.get("/admin/products/create", (req, res) => {
 
 //route to handle create product form submission
 // demonstrates PRG Design Pattern (Post Redirect GET)
-router.post("/admin/products/create", async (req, res) => {
-  let data = req.body;
-  let newProduct = new Product(data);
-  newProduct.title = data.title;
-  await newProduct.save();
-  return res.redirect("/admin/products");
-  // we will send data to model to save in db
+router.post(
+  "/admin/products/create",
+  upload.single("file"),
+  async (req, res) => {
+    // return res.send(req.file);
+    let data = req.body;
+    let newProduct = new Product(data);
+    newProduct.title = data.title;
+    if (req.file) {
+      newProduct.picture = req.file.filename;
+    }
+    await newProduct.save();
+    return res.redirect("/admin/products");
+    // we will send data to model to save in db
 
-  // return res.send(newProduct);
-  // return res.render("admin/product-form", { layout: "adminlayout" });
-});
+    // return res.send(newProduct);
+    // return res.render("admin/product-form", { layout: "adminlayout" });
+  }
+);
 
-router.get("/admin/products", async (req, res) => {
-  let products = await Product.find();
+router.get("/admin/products/:page?", async (req, res) => {
+  let page = req.params.page;
+  page = page ? Number(page) : 1;
+  let pageSize = 1;
+  let totalRecords = await Product.countDocuments();
+  let totalPages = Math.ceil(totalRecords / pageSize);
+  // return res.send({ page });
+  let products = await Product.find()
+    .limit(pageSize)
+    .skip((page - 1) * pageSize);
+
   return res.render("admin/products", {
     layout: "adminlayout",
     pageTitle: "Manage Your Products",
     products,
+    page,
+    pageSize,
+    totalPages,
+    totalRecords,
   });
 });
 

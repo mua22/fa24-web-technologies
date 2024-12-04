@@ -14,6 +14,7 @@ server.use(expressLayouts);
 
 //expose public folder for publically accessible static files
 server.use(express.static("public"));
+server.use(express.static("uploads"));
 // add support for fetching data from request body
 server.use(express.urlencoded());
 
