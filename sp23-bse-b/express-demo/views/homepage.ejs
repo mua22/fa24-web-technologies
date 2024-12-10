@@ -8,7 +8,7 @@
                 <div class="card-body">
                   <h5 class="card-title"><%= products[index].title %></h5>
                   <p class="card-text"><%=products[index].description %></p>
-                  <a href="#" class="btn btn-primary">PKR: <%=products[index].price %> Add To Cart</a>
+                  <a href="/add-to-cart/<%= products[index]._id %>" class="btn btn-primary">PKR: <%=products[index].price %> Add To Cart</a>
                 </div>
               </div>
         </div>

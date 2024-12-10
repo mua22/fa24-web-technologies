@@ -4,13 +4,19 @@ const express = require("express");
 //call express function to make server object
 let app = express();
 // require mongoose which is ORM Object Relational Model
+const cookieParser = require("cookie-parser");
+const session = require("express-session");
+
+app.use(cookieParser());
+app.use(session({ secret: "My session secret" }));
+
 const mongoose = require("mongoose");
 // require package layout options in html rendering
 var expressLayouts = require("express-ejs-layouts");
 // publically accessible assets placed in public folder are exposed
 app.use(express.static("public"));
 app.use(express.static("uploads"));
-
+let ProductModel = require("./models/product.model");
 // add a middleware to parse body data for form submission
 app.use(express.urlencoded());
 
@@ -29,9 +35,22 @@ app.get("/contact-us", (req, res) => {
   let phone = "+92123456";
   res.render("contact-us", { address, phone });
 });
+app.get("/add-to-cart/:id", async (req, res) => {
+  let cart = req.cookies.cart;
+  cart = cart ? cart : [];
+  cart.push(req.params.id);
+  res.cookie("cart", cart);
+  res.redirect("/");
+});
+
+app.get("/cart", async (req, res) => {
+  let cart = req.cookies.cart;
+  cart = cart ? cart : [];
+  let products = await ProductModel.find({ _id: { $in: cart } });
+  return res.render("cart", { products });
+});
 
 app.get("/", async (req, res) => {
-  let ProductModel = require("./models/product.model");
   let products = await ProductModel.find();
   res.render("home", { products });
 });

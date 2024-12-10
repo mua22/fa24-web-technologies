@@ -7,7 +7,15 @@ const mongoose = require("mongoose");
 var expressLayouts = require("express-ejs-layouts");
 // make an express server object by calling express function
 let server = express();
+
+let cookieParser = require("cookie-parser");
+server.use(cookieParser());
+
+let session = require("express-session");
+server.use(session({ secret: "my session secret" }));
+
 // setup ejs as view engine
+
 server.set("view engine", "ejs");
 // add middleware for layouts
 server.use(expressLayouts);
