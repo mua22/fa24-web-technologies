@@ -7,13 +7,17 @@ const mongoose = require("mongoose");
 var expressLayouts = require("express-ejs-layouts");
 // make an express server object by calling express function
 let server = express();
-
+let Product = require("./models/product.model");
+let User = require("./models/user.model");
 let cookieParser = require("cookie-parser");
 server.use(cookieParser());
 
 let session = require("express-session");
 server.use(session({ secret: "my session secret" }));
 
+let siteMiddleware = require("./middlewares/site-middleware");
+let authMiddleware = require("./middlewares/auth-middleware");
+server.use(siteMiddleware);
 // setup ejs as view engine
 
 server.set("view engine", "ejs");
@@ -28,20 +32,62 @@ server.use(express.urlencoded());
 
 // make as manu routers (mini express applications) as you want and add them to express
 let adminProductsRouter = require("./routes/admin/products.controller");
-server.use(adminProductsRouter);
 
 // add as many routes as you want
-server.get("/about-me", (req, res) => {
+server.get("/about-me", authMiddleware, (req, res) => {
   return res.render("about-me");
 });
+server.get("/logout", async (req, res) => {
+  req.session.user = null;
+  return res.redirect("/login");
+});
+server.get("/login", async (req, res) => {
+  return res.render("auth/login");
+});
+server.post("/login", async (req, res) => {
+  let data = req.body;
+  let user = await User.findOne({ email: data.email });
+  if (!user) return res.redirect("/register");
+  isValid = user.password == data.password;
+  if (!isValid) return res.redirect("/login");
+  req.session.user = user;
+  return res.redirect("/");
+});
+server.get("/register", async (req, res) => {
+  return res.render("auth/register");
+});
+server.post("/register", async (req, res) => {
+  let data = req.body;
+  let user = await User.findOne({ email: data.email });
+  if (user) return res.redirect("/register");
+  user = new User(data);
+  await user.save();
+  return res.redirect("/login");
+});
+server.get("/cart", async (req, res) => {
+  let cart = req.cookies.cart;
+  cart = cart ? cart : [];
+  let products = await Product.find({ _id: { $in: cart } });
+  return res.render("cart", { products });
+});
+server.get("/add-to-cart/:id", (req, res) => {
+  let cart = req.cookies.cart;
+  cart = cart ? cart : [];
+  cart.push(req.params.id);
+  res.cookie("cart", cart);
+  return res.redirect("/");
+});
+
 server.get("/", async (req, res) => {
-  let Product = require("./models/product.model");
   let products = await Product.find();
   return res.render("homepage", { products });
 });
 // let connectionString =
 //   "mongodb+srv://musmanakram:musmanakram123@cluster0.vidd3.mongodb.net/";
 // connect your mongoose by giving connection string
+let adminMiddleware = require("./middlewares/admin-middleware");
+server.use("/", authMiddleware, adminMiddleware, adminProductsRouter);
+
 let connectionString = "mongodb://localhost/sp23-bse-b";
 mongoose
   .connect(connectionString, { useNewUrlParser: true })
